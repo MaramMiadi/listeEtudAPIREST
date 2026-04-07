@@ -1,4 +1,8 @@
-package maram.isett.listeetudapirest.Exceptions;
+package maram.isett.listeetudapirest.exceptions;
 
-public class ResourceNotFoundException {
+
+public class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
 }

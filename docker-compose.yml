@@ -11,9 +11,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:latest
+    container_name: redis-etudiants
+    ports:
+      - "6379:6379"
   api:
     build:
-      context: .                  # ← CHANGEMENT IMPORTANT
+      context: ./listeEtudAPIREST                  # ← CHANGEMENT IMPORTANT
       dockerfile: Dockerfile
     container_name: spring-etudiants-api
     ports:
@@ -22,8 +27,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/etudiants_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     depends_on:
       - db
+      - redis
 
 volumes:
   postgres_data:

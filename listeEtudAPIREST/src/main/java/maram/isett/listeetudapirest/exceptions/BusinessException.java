@@ -1,4 +1,8 @@
-package maram.isett.listeetudapirest.Exceptions;
+package maram.isett.listeetudapirest.exceptions;
 
-public class BusinessException {
+
+public class BusinessException extends RuntimeException {
+    public BusinessException(String message) {
+        super(message);
+    }
 }
