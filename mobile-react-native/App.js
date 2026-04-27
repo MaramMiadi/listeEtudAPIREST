@@ -1,55 +1,97 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 
-const API_URL = 'http://10.0.2.2:8080/api/etudiants';   // émulateur Android
-// Si tu testes sur vrai téléphone → remplace par ton IP Windows (ex: http://192.168.1.XX:8080/api/etudiants)
+const GATEWAY_URL = 'http://localhost:8080/api'; // Emulateur Android (Gateway)
 
 export default function App() {
   const [etudiants, setEtudiants] = useState([]);
+  const [departements, setDepartements] = useState([]);
+  const [selectedDept, setSelectedDept] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Charger les départements au démarrage
   useEffect(() => {
-    fetch(API_URL)
-      .then(response => {
-        if (!response.ok) throw new Error('Erreur réseau');
-        return response.json();
-      })
+    fetch(`${GATEWAY_URL}/departements`)
+      .then(res => res.json())
       .then(data => {
-        setEtudiants(data);
-        setLoading(false);
+        setDepartements(data);
+        if (data.length > 0) {
+          setSelectedDept(data[0].id);
+        } else {
+          setLoading(false);
+        }
       })
-      .catch(error => {
-        console.error(error);
-        Alert.alert('Erreur', 'Impossible de charger les étudiants');
+      .catch(err => {
+        console.error(err);
+        Alert.alert('Erreur', 'Impossible de charger les départements');
         setLoading(false);
       });
   }, []);
 
-  const renderItem = ({ item }) => (
+  // Charger les étudiants quand le département change
+  useEffect(() => {
+    if (selectedDept) {
+      setLoading(true);
+      fetch(`${GATEWAY_URL}/etudiants?departementId=${selectedDept}`)
+        .then(res => res.json())
+        .then(data => {
+          setEtudiants(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error(err);
+          Alert.alert('Erreur', 'Impossible de charger les étudiants');
+          setLoading(false);
+        });
+    }
+  }, [selectedDept]);
+
+  const renderEtudiant = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.nom}>{item.nom}</Text>
       <Text style={styles.cin}>CIN : {item.cin}</Text>
-      <Text style={styles.date}>Date de naissance : {item.dateNaissance}</Text>
+      <Text style={styles.date}>Né(e) le : {item.dateNaissance}</Text>
     </View>
   );
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
+  const renderDeptButton = ({ item }) => (
+    <Text
+      style={[styles.deptButton, selectedDept === item.id && styles.activeDept]}
+      onPress={() => setSelectedDept(item.id)}
+    >
+      {item.nom}
+    </Text>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Liste des Étudiants</Text>
-      <FlatList
-        data={etudiants}
-        keyExtractor={item => item.id.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={styles.list}
-      />
+      <Text style={styles.title}>Gestion des Étudiants</Text>
+
+      <View style={styles.deptContainer}>
+        <Text style={styles.label}>Filtrer par Département :</Text>
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={departements}
+          keyExtractor={item => item.id.toString()}
+          renderItem={renderDeptButton}
+          contentContainerStyle={styles.deptList}
+        />
+      </View>
+
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
+      ) : (
+        <FlatList
+          data={etudiants}
+          keyExtractor={item => item.id.toString()}
+          renderItem={renderEtudiant}
+          contentContainerStyle={styles.list}
+          ListEmptyComponent={<Text style={styles.empty}>Aucun étudiant dans ce département</Text>}
+        />
+      )}
     </View>
   );
 }
@@ -64,11 +106,39 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
     color: '#007AFF',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginHorizontal: 15,
+    marginBottom: 10,
+  },
+  deptContainer: {
+    marginBottom: 10,
+  },
+  deptList: {
+    paddingHorizontal: 10,
+    paddingBottom: 5,
+  },
+  deptButton: {
+    backgroundColor: '#eee',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginHorizontal: 5,
+    fontSize: 14,
+    color: '#333',
+    overflow: 'hidden',
+  },
+  activeDept: {
+    backgroundColor: '#007AFF',
+    color: 'white',
   },
   list: {
     paddingHorizontal: 15,
+    paddingBottom: 20,
   },
   card: {
     backgroundColor: 'white',
@@ -94,6 +164,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#777',
     marginTop: 4,
+  },
+  empty: {
+    textAlign: 'center',
+    marginTop: 50,
+    color: '#999',
+    fontSize: 16,
   },
   center: {
     flex: 1,

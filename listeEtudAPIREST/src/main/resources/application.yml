@@ -15,7 +15,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-
   data:
     redis:
       host: localhost
@@ -24,7 +23,7 @@ spring:
 
 
 server:
-  port: 8080
+  port: 8081
 
 
 springdoc:
@@ -35,3 +34,9 @@ springdoc:
     path: /swagger-ui.html
     enabled: true
     operations-sorter: method
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true

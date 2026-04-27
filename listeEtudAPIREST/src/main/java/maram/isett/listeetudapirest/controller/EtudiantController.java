@@ -28,9 +28,13 @@ public class EtudiantController {
             @ApiResponse(responseCode = "200", description = "Liste récupérée avec succès")
     })
     public ResponseEntity<List<EtudiantDTO>> getAllEtudiants(
-            @RequestParam(required = false) Integer annee) {
+            @RequestParam(required = false) Integer annee,
+            @RequestParam(required = false) Long departementId) {
         if (annee != null) {
             return ResponseEntity.ok(etudiantService.findByAnneePremiereInscription(annee));
+        }
+        if (departementId != null) {
+            return ResponseEntity.ok(etudiantService.findByDepartementId(departementId));
         }
         return ResponseEntity.ok(etudiantService.findAll());
     }

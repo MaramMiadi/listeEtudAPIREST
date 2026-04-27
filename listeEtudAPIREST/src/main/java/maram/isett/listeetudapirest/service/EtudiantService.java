@@ -94,4 +94,12 @@ public class EtudiantService {
                 .map(etudiantMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    @Cacheable(value = "etudiants", key = "#departementId")
+    @Transactional(readOnly = true)
+    public List<EtudiantDTO> findByDepartementId(Long departementId) {
+        return etudiantRepository.findByDepartementId(departementId).stream()
+                .map(etudiantMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }

@@ -1,87 +1,90 @@
-# API Project Lab (Part 1 & Part 2)
+# Full-Stack Microservices Project - Student & Grading Management
 
-This repository contains a full-stack project utilizing a Spring Boot API with a PostgreSQL database and Redis caching, alongside two distinct mobile frontends (React Native and Flutter). A lightweight web interface is also included. This structure allows for a cross-platform architecture with a centralized backend, easily deployed with Docker and Kubernetes.
+This repository contains a comprehensive microservices-based project evolving from a monolith to a distributed architecture. It includes a Spring Boot backend ecosystem, a modern Next.js web portal, and dual mobile frontends (React Native & Flutter).
 
-## Project Structure
+## Project Evolution & Architecture (Part 1 - Part 7)
 
-The project is divided into the following directories:
+The project has evolved through several key integration phases:
+- **Part 1 & 2**: Monolithic API with PostgreSQL, Redis Caching, and basic mobile apps.
+- **Part 3 & 4**: Transition to Microservices with Service Discovery (Eureka), API Gateway, and Communication (Feign).
+- **Part 5**: Mobile enhancements with department filtering and Gateway routing.
+- **Part 6**: Development of a modern Web Frontend using Next.js (App Router).
+- **Part 7**: Global orchestration of the entire stack using Docker Compose.
 
-*   **`listeEtudAPIREST`**: The monolithic backend service (Spring Boot).
-    *   **Framework**: Spring Boot (Java 21)
-    *   **Database**: PostgreSQL 16 & Redis
-    *   **Architecture & Design**: Follows a cleanly separated layered architecture (Controllers, Services, Repositories, Entities, DTOs, Mappers).
-    *   **Features (Part 2 Enrichments)**:
-        *   Spring Data JPA with Entities for `Etudiant` and `Departement`.
-        *   Full RESTful CRUD APIs with specialized error handling (`@RestControllerAdvice`).
-        *   Swagger/OpenAPI interactive documentation.
-        *   Caching implementations via Redis (`@Cacheable`, `@CacheEvict`).
-        *   BDD testing integrated utilizing Cucumber (Gherkin syntax).
-        *   Included `index.html` lightweight interface making vanilla JS Fetch requests.
-    *   **Docker Integration**: Includes a Dockerfile to build `etudiant-service:1.0` and a `docker-compose.yml` to orchestrate PostgreSQL, Redis, and the Spring Boot API.
+---
 
-*   **`k8s`**: Local Kubernetes deployment manifests (K3S).
-    *   Contains deployments and services for PostgreSQL (`postgres-deployment.yaml`) and the API service (`etudiant-deployment.yaml`).
+## 🏗️ Project Structure
 
-*   **`mobile-react-native`**: A mobile application built using React Native and Expo.
-    *   **Version**: React Native 0.81.5, Expo ~54.0.33
-    *   **Key Dependencies**: `@react-navigation/native` and `@react-navigation/native-stack`.
+### 🔌 Backend Services (Spring Cloud)
+*   **`eureka-server`**: Service registry where all microservices register themselves for discovery.
+*   **`api-gateway`**: The central entry point (Port 8080) that routes traffic to specific services.
+*   **`listeEtudAPIREST`**: (Etudiant Service) Core service for managing student records and departments.
+*   **`grading-service`**: Microservice dedicated to managing student grades and notes.
 
-*   **`mobile_flutter`**: A cross-platform mobile application built using Flutter.
-    *   **Version**: Flutter SDK (Dart ^3.11.0)
-    *   **Key Dependencies**: `http` for API communication.
+### 🌐 Web & Mobile Frontends
+*   **`frontend`**: A modern Next.js portal (Tailwind CSS) for managing students and departments via the Gateway.
+*   **`mobile-react-native`**: React Native (Expo) app featuring department-based filtering.
+*   **`mobile_flutter`**: Flutter cross-platform app for student consultation.
 
-## Prerequisites
+### ⚙️ Infrastructure & DevOps
+*   **`docker-compose.yml`**: Full stack orchestration (Postgres, Redis, Eureka, Gateway, Services, Web).
+*   **`k8s`**: Kubernetes manifests for local cluster deployment (K3S).
 
-Before running the applications, ensure you have the following installed:
+---
 
-*   [Docker](https://www.docker.com/products/docker-desktop) and Docker Compose
-*   [Kubernetes (K3S/Kubectl)](https://k3s.io/) (If validating Kubernetes deployments)
-*   [Node.js](https://nodejs.org/) (for React Native/Expo)
-*   [Flutter SDK](https://flutter.dev/docs/get-started/install)
-*   Java Development Kit (JDK 21+)
-*   Maven (if running the API outside of Docker)
+## 🚀 How to Run the Project
 
-## How to Run the Applications
-
-### 1. Backend API (Spring Boot + PostgreSQL + Redis)
-
-The easiest way to run the backend and its databases is using Docker Compose.
+### 🐳 Full Orchestration (Recommended)
+The entire ecosystem (Databases, Infrastructure, Services, and Web Portal) can be launched with a single command:
 
 ```bash
-cd listeEtudAPIREST
 docker-compose up -d --build
 ```
 
-This will:
-*   Start the PostgreSQL database on `localhost:5432`.
-*   Start the Redis cache server.
-*   Start the Spring Boot API on `localhost:8080`.
-*   You can then access the Swagger Documentation at: `http://localhost:8080/swagger-ui.html`
+**Services will be available at:**
+- **Gateway (Entry Point)**: `http://localhost:8080`
+- **Web Frontend**: `http://localhost:3000`
+- **Eureka Dashboard**: `http://localhost:8761`
+- **Swagger Documentation**: Accessible via Gateway (e.g., `http://localhost:8080/swagger-ui.html`)
 
-### 2. React Native Mobile App
+### 📱 Mobile Applications
 
-To run the React Native application using Expo:
-
+#### React Native (Expo)
 ```bash
 cd mobile-react-native
 npm install
 npm start
 ```
 
-### 3. Flutter Mobile App
-
-To run the Flutter application:
-
+#### Flutter
 ```bash
 cd mobile_flutter
 flutter pub get
 flutter run
 ```
 
-## Agile & Jira Management
+---
 
-This project's tasks (Epics, Stories, and Tasks) are tracked on Jira using a Scrum structural approach, splitting base tasks (Sprint 1) and enrichments (Sprint 2).
+## 🛠️ API Gateway Routing
 
-## Notes
+| Route Path | Target Service | Purpose |
+| :--- | :--- | :--- |
+| `/api/etudiants/**` | `etudiant-service` | Student Management |
+| `/api/departements/**` | `etudiant-service` | Department Management |
+| `/api/notes/**` | `grading-service` | Grade Management |
 
-Ensure that your mobile emulators or physical testing devices can reach the backend API. If you are using physical devices or the Expo Go app, you may need to replace `localhost` in your mobile apps with your machine's local IP address (e.g., `192.168.1.x`).
+---
+
+## 📋 Prerequisites
+- **Docker & Docker Compose**
+- **Node.js** (for React Native and Next.js)
+- **Flutter SDK**
+- **Java 21+ & Maven** (for local development)
+
+## 🎯 Project Features
+- **Service Discovery**: Automated registration via Eureka.
+- **Dynamic Routing**: Unified API access through Spring Cloud Gateway.
+- **Inter-service Communication**: Feign clients for synchronous calls between services.
+- **Caching**: Performance optimization using Redis.
+- **Modern UI**: Responsive web design with Next.js and Tailwind CSS.
+- **Agile Management**: Tasks tracked via Jira (Sprint 1 to Sprint 3).

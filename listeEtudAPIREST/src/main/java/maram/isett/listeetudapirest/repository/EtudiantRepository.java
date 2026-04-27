@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface EtudiantRepository extends JpaRepository<Etudiant, Long> {
     List<Etudiant> findByAnneePremiereInscription(int annee);
+    List<Etudiant> findByDepartementId(Long departementId);
     boolean existsByCin(String cin);
     boolean existsByEmail(String email);
 }
