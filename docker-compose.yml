@@ -84,6 +84,27 @@ services:
     networks:
       - micro-network
 
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - micro-network
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "3001:3001"
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/authdb
+      JWT_SECRET: your_jwt_secret_here
+    depends_on:
+      - mongodb
+    networks:
+      - micro-network
+
 networks:
   micro-network:
     driver: bridge

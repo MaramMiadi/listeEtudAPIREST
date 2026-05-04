@@ -24,6 +24,8 @@ public class EtudiantMapper {
             dto.setDepartementNom(etudiant.getDepartement().getNom());
         }
 
+        dto.setAge(etudiant.age());
+
         return dto;
     }
     public Etudiant toEntity(EtudiantDTO dto, Departement departement) {
