@@ -1,5 +1,6 @@
 package maram.isett.listeetudapirest.service;
 
+import maram.isett.listeetudapirest.Kafka.KafkaProducerService;
 import maram.isett.listeetudapirest.dto.EtudiantDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class EtudiantService {
     private final EtudiantRepository etudiantRepository;
     private final DepartementRepository departementRepository;
     private final EtudiantMapper etudiantMapper;
-
+    private final KafkaProducerService kafkaProducerService;
     @Cacheable(value = "etudiants")
     @Transactional(readOnly = true)
     public List<EtudiantDTO> findAll() {
@@ -48,16 +49,26 @@ public class EtudiantService {
         if (etudiantRepository.existsByCin(etudiantDTO.getCin())) {
             throw new BusinessException("Un étudiant avec ce CIN existe déjà");
         }
+
         if (etudiantRepository.existsByEmail(etudiantDTO.getEmail())) {
             throw new BusinessException("Un étudiant avec cet email existe déjà");
         }
 
         Departement departement = departementRepository.findById(etudiantDTO.getDepartementId())
-                .orElseThrow(() -> new ResourceNotFoundException("Département non trouvé avec l'id: " + etudiantDTO.getDepartementId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Département non trouvé avec l'id: " + etudiantDTO.getDepartementId()
+                ));
 
         Etudiant etudiant = etudiantMapper.toEntity(etudiantDTO, departement);
+
         Etudiant saved = etudiantRepository.save(etudiant);
-        return etudiantMapper.toDTO(saved);
+
+        EtudiantDTO savedDTO = etudiantMapper.toDTO(saved);
+
+        // Send Kafka event after student creation
+        kafkaProducerService.publishEtudiantCreated(savedDTO);
+
+        return savedDTO;
     }
 
     @CacheEvict(value = "etudiants", allEntries = true)
