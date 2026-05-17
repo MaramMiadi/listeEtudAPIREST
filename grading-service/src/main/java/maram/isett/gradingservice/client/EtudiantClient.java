@@ -2,7 +2,6 @@ package maram.isett.gradingservice.client;
 
 import maram.isett.gradingservice.dto.EtudiantDTO;
 
-import maram.isett.gradingservice.dto.EtudiantDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;

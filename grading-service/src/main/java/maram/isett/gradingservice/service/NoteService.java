@@ -1,25 +1,26 @@
 package maram.isett.gradingservice.service;
 
-import maram.isett.gradingservice.client.StudentClient;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import maram.isett.gradingservice.client.EtudiantClient;
 import maram.isett.gradingservice.dto.NoteDTO;
 import maram.isett.gradingservice.entity.Note;
 import maram.isett.gradingservice.exception.ResourceNotFoundException;
 import maram.isett.gradingservice.mapper.NoteMapper;
 import maram.isett.gradingservice.repository.NoteRepository;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class NoteService {
+
     private final NoteRepository noteRepository;
     private final NoteMapper noteMapper;
-    private final StudentClient studentClient;
+    private final EtudiantClient etudiantClient;
 
     public List<NoteDTO> getAllNotes() {
         return noteMapper.toDTOList(noteRepository.findAll());
@@ -32,12 +33,13 @@ public class NoteService {
     }
 
     public NoteDTO createNote(NoteDTO noteDTO) {
-        // Verify student exists before creating grade
         try {
-            studentClient.getEtudiantById(noteDTO.getStudentId());
+            etudiantClient.findById(noteDTO.getStudentId());
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Student with ID " + noteDTO.getStudentId() + " does not exist");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Student with ID " + noteDTO.getStudentId() + " does not exist"
+            );
         }
 
         Note note = noteMapper.toEntity(noteDTO);
@@ -48,13 +50,14 @@ public class NoteService {
         Note existingNote = noteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Note not found with id: " + id));
 
-        // Verify student exists if studentId changed
         if (!existingNote.getStudentId().equals(noteDTO.getStudentId())) {
             try {
-                studentClient.getEtudiantById(noteDTO.getStudentId());
+                etudiantClient.findById(noteDTO.getStudentId());
             } catch (Exception e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Student with ID " + noteDTO.getStudentId() + " does not exist");
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Student with ID " + noteDTO.getStudentId() + " does not exist"
+                );
             }
         }
 

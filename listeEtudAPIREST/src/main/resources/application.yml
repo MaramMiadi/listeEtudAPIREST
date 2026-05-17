@@ -1,11 +1,13 @@
 spring:
   application:
-    name: liste-etud-api
+    name: etudiant-service
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/etudiants_db
-    username: postgres
-    password: root
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/etudiantsdb}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -14,21 +16,21 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  Kafka:
-    bootstrap-servers: kafka:9092
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
   data:
     redis:
-      host: localhost
+      host: ${SPRING_REDIS_HOST:redis}
       port: 6379
       timeout: 2000ms
 
-
 server:
   port: 8081
-
 
 springdoc:
   api-docs:
@@ -38,10 +40,3 @@ springdoc:
     path: /swagger-ui.html
     enabled: true
     operations-sorter: method
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
-  instance:
-    prefer-ip-address: true
-

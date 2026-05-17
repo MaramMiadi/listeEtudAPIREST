@@ -1,0 +1,22 @@
+replicaCount:
+  etudiantService: 2
+  gradingService: 1
+  frontend: 1
+
+images:
+  etudiantService:
+    repository: miadi/etudiant-service
+    tag: "2.0"
+  gradingService:
+    repository: miadi/grading-service
+    tag: "2.0"
+  frontend:
+    repository: miadi/frontend
+    tag: "2.0"
+
+postgres:
+  database: etudiantsdb
+  storage: 1Gi
+
+ingress:
+  host: projet-etudiants.local
